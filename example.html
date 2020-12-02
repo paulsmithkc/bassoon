@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <h1>See Console</h1>
+
+    <script src="oboe.js"></script>
+    <script>
+      oboe('example.json')
+        .on('text', (text) => console.log('text', text.substr(0, 10), '...'))
+        .on('data', (data) => console.log('data', data))
+        .on('end', (evt) => console.log('done', evt))
+        .on('error', (evt) => console.error('error', evt));
+    </script>
+  </body>
+</html>
