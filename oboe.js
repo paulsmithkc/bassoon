@@ -102,7 +102,6 @@ function oboe(arg1) {
     const FALSE = ++_n;
     const NULL = ++_n;
     const UNDEFINED = ++_n;
-    const VALUE_END = ++_n;
     const END = ++_n;
 
     // patterns
@@ -129,12 +128,8 @@ function oboe(arg1) {
     emitter.parse = parse;
     return emitter;
 
-    // function isWhitespace(c) {
-    //   return whitespacePattern.test(c);
-    // }
-
     function emit(key, data) {
-      //console.log(key, data);
+      // console.log(' '.repeat(stack.length * 2), key, data);
       emitter.emit(key, data);
     }
 
@@ -149,6 +144,7 @@ function oboe(arg1) {
         emit('key', key);
         return true;
       } else {
+        console.log('key incomplete', buffer.substr(i, 20), '...');
         return false;
       }
     }
@@ -181,8 +177,7 @@ function oboe(arg1) {
       if (match) {
         // exclude the terminating ,}]
         i = pattern.lastIndex - 2;
-        state = stack.pop();
-
+        
         switch (type) {
           case STRING:
             value = match.groups.value;
@@ -205,17 +200,20 @@ function oboe(arg1) {
         }
 
         emit('value', value);
+        state = stack.pop();
         return true;
       } else {
+        console.log('value incomplete', buffer.substr(i, 20), '...');
         return false;
       }
     }
 
     function parse(chunk) {
       buffer += chunk;
-      console.log('parse', buffer.substr(i, 20), '...');
+      // console.log('parse', buffer.substr(i, 20), '...');
+      // console.log('parse state', state);
 
-      for (i = 0; i < buffer.length; ++i) {
+      for (; i < buffer.length; ++i) {
         const c = buffer[i];
         switch (state) {
           case END:
@@ -301,8 +299,8 @@ function oboe(arg1) {
                 // ignore whitespace
                 break;
               case ']':
-                state = stack.pop();
                 emit('closearray');
+                state = stack.pop();
                 break;
               case ',':
                 // ignore extra commas
@@ -323,8 +321,8 @@ function oboe(arg1) {
                 // ignore whitespace
                 break;
               case '}':
-                state = stack.pop();
                 emit('closeobject');
+                state = stack.pop();
                 break;
               case '{':
               case '[':
@@ -350,7 +348,7 @@ function oboe(arg1) {
         }
       }
 
-      buffer = '';
+      buffer = buffer.substring(i);
       i = 0;
     }
   }
