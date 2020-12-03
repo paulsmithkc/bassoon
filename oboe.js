@@ -1,33 +1,45 @@
 function oboe(arg1) {
+  'use strict';
+
   if (typeof arg1 === 'string') {
-    return oboeImpl({ url: arg1 });
+    return run({ url: arg1 });
   } else {
-    return oboeImpl(arg1);
+    return run(arg1);
   }
 
-  function oboeImpl(args) {
-    var emitter = oboeEmitter();
-    var parser = oboeParser(emitter);
-    var seen = 0;
+  function run(args) {
+    const emitter = Emitter();
+    const parser = Parser();
+    let seen = 0;
 
     try {
-      var xhr = new XMLHttpRequest();
+      const xhr = new XMLHttpRequest();
       xhr.open(args.method || 'GET', args.url);
       xhr.responseType = 'text';
+      xhr.withCredentials = args.withCredentials || false;
 
       xhr.onreadystatechange = function (evt) {
         if (xhr.readyState > 2) {
-          var fullText = xhr.responseText;
-          var newText = fullText.substr(seen);
+          const fullText = xhr.responseText;
+          const newText = fullText.substr(seen);
           seen = fullText.length;
           emitter.emit('text', newText);
+          parser.parse(newText);
         }
       };
       xhr.onload = function (event) {
-        emitter.emit('end', { event });
+        emitter.emit('end', {
+          status: xhr.status,
+          statusText: xhr.statusText,
+        });
       };
       xhr.onerror = function (event) {
-        emitter.emit('error', { event });
+        emitter.emit('error', {
+          status: xhr.status,
+          statusText: xhr.statusText,
+          timeout: xhr.timeout,
+          event: event,
+        });
       };
 
       xhr.send();
@@ -38,9 +50,9 @@ function oboe(arg1) {
     return emitter;
   }
 
-  function oboeEmitter() {
-    var events = {};
-    var emitter = { on, emit };
+  function Emitter() {
+    const events = {};
+    const emitter = { on, emit };
     return emitter;
 
     function get(key) {
@@ -50,12 +62,12 @@ function oboe(arg1) {
       return events[key];
     }
     function on(key, callback) {
-      var event = get(key);
-      var queue = event.queue;
+      const event = get(key);
+      const queue = event.queue;
       event.callback = callback;
-      if (queue.length) {
+      if (callback && queue.length) {
         // emit missed events
-        for (var i = 0; i < queue.length; ++i) {
+        for (let i = 0; i < queue.length; ++i) {
           callback(queue[i]);
         }
         event.queue = [];
@@ -63,8 +75,8 @@ function oboe(arg1) {
       return emitter;
     }
     function emit(key, data) {
-      var event = get(key);
-      var callback = event.callback;
+      const event = get(key);
+      const callback = event.callback;
       if (callback) {
         // emit current event
         callback(data);
@@ -76,7 +88,270 @@ function oboe(arg1) {
     }
   }
 
-  function oboeParser(emitter) {
-    return {};
+  function Parser() {
+    // states
+    let _n = 0;
+    const BEGIN = ++_n;
+    const ARRAY = ++_n;
+    const OBJECT = ++_n;
+    const KEY = ++_n;
+    const VALUE = ++_n;
+    const STRING = ++_n;
+    const NUMBER = ++_n;
+    const TRUE = ++_n;
+    const FALSE = ++_n;
+    const NULL = ++_n;
+    const UNDEFINED = ++_n;
+    const VALUE_END = ++_n;
+    const END = ++_n;
+
+    // patterns
+    // const whitespacePattern = /^[ \t\n\r]+/;
+    const keyPattern = /\s*(("(?<value1>[^\"]+)")|(?<value2>\w+))\s*:\s*/y;
+    const stringPattern = /\s*"(?<value>(([^\"]+)|(\["\/bfnrtv])|(\u[0-9a-fA-F]{4}))+)"\s*[,}\]]/y;
+    const numberPattern = /\s*(?<value>[-+]?\d+(.\d+)?([eE][-+]?\d+)?)\s*[,}\]]/y;
+    const truePattern = /\s*(?<value>true)\s*[,}\]]/iy;
+    const falsePattern = /\s*(?<value>false)\s*[,}\]]/iy;
+    const nullPattern = /\s*(?<value>null)\s*[,}\]]/iy;
+    const undefinedPattern = /[^,}\]]*[,}\]]/y;
+
+    // parser state
+    const stack = [END];
+    let state = BEGIN;
+    let key = null;
+    let value = null;
+    let match = null;
+    let buffer = '';
+    let i = 0;
+
+    // build and return parser object
+    const emitter = Emitter();
+    emitter.parse = parse;
+    return emitter;
+
+    // function isWhitespace(c) {
+    //   return whitespacePattern.test(c);
+    // }
+
+    function emit(key, data) {
+      //console.log(key, data);
+      emitter.emit(key, data);
+    }
+
+    function parseKey() {
+      let pattern = keyPattern;
+      pattern.lastIndex = i;
+      match = pattern.exec(buffer);
+      if (match) {
+        i = pattern.lastIndex - 1;
+        state = VALUE;
+        key = match.groups.value1 || match.groups.value2;
+        emit('key', key);
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    function parseValue(type) {
+      let pattern = null;
+      switch (type) {
+        case STRING:
+          pattern = stringPattern;
+          break;
+        case NUMBER:
+          pattern = numberPattern;
+          break;
+        case TRUE:
+          pattern = truePattern;
+          break;
+        case FALSE:
+          pattern = falsePattern;
+          break;
+        case NULL:
+          pattern = nullPattern;
+          break;
+        case UNDEFINED:
+          pattern = undefinedPattern;
+          break;
+      }
+
+      pattern.lastIndex = i;
+      match = pattern.exec(buffer);
+      if (match) {
+        // exclude the terminating ,}]
+        i = pattern.lastIndex - 2;
+        state = stack.pop();
+
+        switch (type) {
+          case STRING:
+            value = match.groups.value;
+            break;
+          case NUMBER:
+            value = parseFloat(match.groups.value);
+            break;
+          case TRUE:
+            value = true;
+            break;
+          case FALSE:
+            value = false;
+            break;
+          case NULL:
+            value = null;
+            break;
+          case UNDEFINED:
+            value = undefined;
+            break;
+        }
+
+        emit('value', value);
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    function parse(chunk) {
+      buffer += chunk;
+      console.log('parse', buffer.substr(i, 20), '...');
+
+      for (i = 0; i < buffer.length; ++i) {
+        const c = buffer[i];
+        switch (state) {
+          case END:
+            // skip all remaining text
+            i = buffer.length;
+            break;
+          case BEGIN:
+          case VALUE:
+            switch (c) {
+              case ' ':
+              case '\t':
+              case '\n':
+              case '\r':
+                // ignore whitespace
+                break;
+              case '[':
+                state = ARRAY;
+                emit('openarray');
+                break;
+              case '{':
+                state = OBJECT;
+                emit('openobject');
+                break;
+              case '"':
+                if (!parseValue(STRING)) {
+                  // continue parsing when we get more data
+                  return;
+                }
+                break;
+              case '-':
+              case '+':
+              case '.':
+              case '0':
+              case '1':
+              case '2':
+              case '3':
+              case '4':
+              case '5':
+              case '6':
+              case '7':
+              case '8':
+              case '9':
+                if (!parseValue(NUMBER)) {
+                  // continue parsing when we get more data
+                  return;
+                }
+                break;
+              case 't':
+              case 'T':
+                if (!parseValue(TRUE)) {
+                  // continue parsing when we get more data
+                  return;
+                }
+                break;
+              case 'f':
+              case 'F':
+                if (!parseValue(FALSE)) {
+                  // continue parsing when we get more data
+                  return;
+                }
+                break;
+              case 'n':
+              case 'N':
+                if (!parseValue(NULL)) {
+                  // continue parsing when we get more data
+                  return;
+                }
+                break;
+              default:
+                if (!parseValue(UNDEFINED)) {
+                  // continue parsing when we get more data
+                  return;
+                }
+                break;
+            }
+            break;
+          case ARRAY:
+            switch (c) {
+              case ' ':
+              case '\t':
+              case '\n':
+              case '\r':
+                // ignore whitespace
+                break;
+              case ']':
+                state = stack.pop();
+                emit('closearray');
+                break;
+              case ',':
+                // ignore extra commas
+                break;
+              default:
+                stack.push(state);
+                state = VALUE;
+                --i;
+                break;
+            }
+            break;
+          case OBJECT:
+            switch (c) {
+              case ' ':
+              case '\t':
+              case '\n':
+              case '\r':
+                // ignore whitespace
+                break;
+              case '}':
+                state = stack.pop();
+                emit('closeobject');
+                break;
+              case '{':
+              case '[':
+              case ']':
+              case ',':
+                // ignore stray characters
+                break;
+              default:
+                stack.push(state);
+                state = KEY;
+                --i;
+                break;
+            }
+            break;
+          case KEY:
+            if (!parseKey()) {
+              // continue parsing when we get more data
+              return;
+            }
+            break;
+          default:
+            throw new Error('unexpected state ' + state);
+        }
+      }
+
+      buffer = '';
+      i = 0;
+    }
   }
 }
