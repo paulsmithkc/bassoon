@@ -14,7 +14,7 @@ function oboe(arg1) {
 
     parser.callback = function ({ key, data, depth }) {
       console.log(' '.repeat(depth * 2), key, data);
-    }
+    };
 
     try {
       const xhr = new XMLHttpRequest();
@@ -135,7 +135,7 @@ function oboe(arg1) {
       // console.log(' '.repeat(stack.length * 2), key, data);
       callback = parser.callback;
       if (callback) {
-        callback({ key, data, depth: stack.length });
+        callback({ key, data, depth: stack.length - 1 });
       }
     }
 
@@ -145,9 +145,9 @@ function oboe(arg1) {
       match = pattern.exec(buffer);
       if (match) {
         i = pattern.lastIndex - 1;
-        state = VALUE;
         key = match.groups.value1 || match.groups.value2;
         emit('key', key);
+        state = VALUE;
         return true;
       } else {
         console.log('key incomplete', buffer.substr(i, 20), '...');
@@ -183,7 +183,7 @@ function oboe(arg1) {
       if (match) {
         // exclude the terminating ,}]
         i = pattern.lastIndex - 2;
-        
+
         switch (type) {
           case STRING:
             value = match.groups.value;
@@ -236,12 +236,12 @@ function oboe(arg1) {
                 // ignore whitespace
                 break;
               case '[':
-                state = ARRAY;
                 emit('openarray');
+                state = ARRAY;
                 break;
               case '{':
-                state = OBJECT;
                 emit('openobject');
+                state = OBJECT;
                 break;
               case '"':
                 if (!parseValue(STRING)) {
