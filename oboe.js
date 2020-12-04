@@ -12,6 +12,10 @@ function oboe(arg1) {
     const parser = Parser();
     let seen = 0;
 
+    parser.callback = function ({ key, data, depth }) {
+      console.log(' '.repeat(depth * 2), key, data);
+    }
+
     try {
       const xhr = new XMLHttpRequest();
       xhr.open(args.method || 'GET', args.url);
@@ -23,7 +27,7 @@ function oboe(arg1) {
           const fullText = xhr.responseText;
           const newText = fullText.substr(seen);
           seen = fullText.length;
-          emitter.emit('text', newText);
+          // emitter.emit('text', newText);
           parser.parse(newText);
         }
       };
@@ -88,7 +92,7 @@ function oboe(arg1) {
     }
   }
 
-  function Parser() {
+  function Parser(callback) {
     // states
     let _n = 0;
     const BEGIN = ++_n;
@@ -124,13 +128,15 @@ function oboe(arg1) {
     let i = 0;
 
     // build and return parser object
-    const emitter = Emitter();
-    emitter.parse = parse;
-    return emitter;
+    const parser = { parse, end, callback };
+    return parser;
 
     function emit(key, data) {
       // console.log(' '.repeat(stack.length * 2), key, data);
-      emitter.emit(key, data);
+      callback = parser.callback;
+      if (callback) {
+        callback({ key, data, depth: stack.length });
+      }
     }
 
     function parseKey() {
@@ -350,6 +356,10 @@ function oboe(arg1) {
 
       buffer = buffer.substring(i);
       i = 0;
+    }
+
+    function end() {
+      return parse(',');
     }
   }
 }
