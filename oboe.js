@@ -94,19 +94,18 @@ function oboe(arg1) {
 
   function Parser(callback) {
     // states
-    let _n = 0;
-    const BEGIN = ++_n;
-    const ARRAY = ++_n;
-    const OBJECT = ++_n;
-    const KEY = ++_n;
-    const VALUE = ++_n;
-    const STRING = ++_n;
-    const NUMBER = ++_n;
-    const TRUE = ++_n;
-    const FALSE = ++_n;
-    const NULL = ++_n;
-    const UNDEFINED = ++_n;
-    const END = ++_n;
+    const BEGIN = 0;
+    const ARRAY = 1;
+    const OBJECT = 2;
+    const KEY = 3;
+    const VALUE = 4;
+    const STRING = 5;
+    const NUMBER = 6;
+    const TRUE = 7;
+    const FALSE = 8;
+    const NULL = 9;
+    const UNDEFINED = 10;
+    const END = 11;
 
     // patterns
     // const whitespacePattern = /^[ \t\n\r]+/;
