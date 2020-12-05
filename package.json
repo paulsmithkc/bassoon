@@ -8,6 +8,10 @@
   },
   "author": "Paul Smith",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/paulsmithkc/bassoon.git"
+  },
   "devDependencies": {
     "@babel/cli": "^7.12.8",
     "@babel/core": "^7.12.9",
