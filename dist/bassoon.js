@@ -104,32 +104,32 @@ function Parser(callback) {
   var END = 11; // patterns
   // const whitespacePattern = /^[ \t\n\r]+/;
 
-  var keyPattern = /*#__PURE__*/_wrapRegExp(new RegExp("[\\t-\\r \\xA0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\uFEFF]*((\"((?:(?!\")[\\s\\S])+)\")|([0-9A-Z_a-z]+))[\\t-\\r \\xA0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\uFEFF]*:[\\t-\\r \\xA0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\uFEFF]*", "y"), {
+  var keyPattern = /*#__PURE__*/_wrapRegExp(new RegExp("((\"((?:(?!\")[\\s\\S])+)\")|([0-9A-Z_a-z]+))[\\t\\n\\r ]*:[\\t\\n\\r ]*", "y"), {
     value1: 3,
     value2: 4
   });
 
-  var stringPattern = /*#__PURE__*/_wrapRegExp(new RegExp("[\\t-\\r \\xA0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\uFEFF]*\"((((?:(?!\")[\\s\\S])+)|(\\[\"\\/bfnrtv\\])|(u[0-9A-Fa-f]{4}))+)\"[\\t-\\r ,\\]\\}\\xA0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\uFEFF]", "y"), {
+  var stringPattern = /*#__PURE__*/_wrapRegExp(new RegExp("\"((((?:(?!\")[\\s\\S])+)|(\\[\"\\/bfnrtv\\])|(u[0-9A-Fa-f]{4}))+)\"[\\t\\n\\r ,\\]\\}]", "y"), {
     value: 1
   });
 
-  var numberPattern = /*#__PURE__*/_wrapRegExp(new RegExp("[\\t-\\r \\xA0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\uFEFF]*([\\+\\x2D]?[0-9]+(.[0-9]+)?([Ee][\\+\\x2D]?[0-9]+)?)[\\t-\\r ,\\]\\}\\xA0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\uFEFF]", "y"), {
+  var numberPattern = /*#__PURE__*/_wrapRegExp(new RegExp("([\\+\\x2D]?[0-9]+(.[0-9]+)?([Ee][\\+\\x2D]?[0-9]+)?)[\\t\\n\\r ,\\]\\}]", "y"), {
     value: 1
   });
 
-  var truePattern = /*#__PURE__*/_wrapRegExp(new RegExp("[\\t-\\r \\xA0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\uFEFF]*(true)[\\t-\\r ,\\]\\}\\xA0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\uFEFF]", "iy"), {
+  var truePattern = /*#__PURE__*/_wrapRegExp(new RegExp("(true)[\\t\\n\\r ,\\]\\}]", "iy"), {
     value: 1
   });
 
-  var falsePattern = /*#__PURE__*/_wrapRegExp(new RegExp("[\\t-\\r \\xA0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\uFEFF]*(false)[\\t-\\r ,\\]\\}\\xA0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\uFEFF]", "iy"), {
+  var falsePattern = /*#__PURE__*/_wrapRegExp(new RegExp("(false)[\\t\\n\\r ,\\]\\}]", "iy"), {
     value: 1
   });
 
-  var nullPattern = /*#__PURE__*/_wrapRegExp(new RegExp("[\\t-\\r \\xA0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\uFEFF]*(null)[\\t-\\r ,\\]\\}\\xA0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\uFEFF]", "iy"), {
+  var nullPattern = /*#__PURE__*/_wrapRegExp(new RegExp("(null)[\\t\\n\\r ,\\]\\}]", "iy"), {
     value: 1
   });
 
-  var undefinedPattern = new RegExp("\\s*[^,}\\]\\s]+[,}\\]\\s]", "y"); // parser state
+  var undefinedPattern = new RegExp("[^ \\t\\n\\r,}\\]]+[ \\t\\n\\r,}\\]]", "y"); // parser state
 
   var stack = [END];
   var state = BEGIN;

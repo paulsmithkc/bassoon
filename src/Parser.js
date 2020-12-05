@@ -15,13 +15,13 @@ export default function Parser(callback) {
 
   // patterns
   // const whitespacePattern = /^[ \t\n\r]+/;
-  const keyPattern = /\s*(("(?<value1>[^\"]+)")|(?<value2>\w+))\s*:\s*/y;
-  const stringPattern = /\s*"(?<value>(([^\"]+)|(\["\/bfnrtv])|(\u[0-9a-fA-F]{4}))+)"[,}\]\s]/y;
-  const numberPattern = /\s*(?<value>[-+]?\d+(.\d+)?([eE][-+]?\d+)?)[,}\]\s]/y;
-  const truePattern = /\s*(?<value>true)[,}\]\s]/iy;
-  const falsePattern = /\s*(?<value>false)[,}\]\s]/iy;
-  const nullPattern = /\s*(?<value>null)[,}\]\s]/iy;
-  const undefinedPattern = /\s*[^,}\]\s]+[,}\]\s]/y;
+  const keyPattern = /(("(?<value1>[^\"]+)")|(?<value2>\w+))[ \t\n\r]*:[ \t\n\r]*/y;
+  const stringPattern = /"(?<value>(([^\"]+)|(\["\/bfnrtv])|(\u[0-9a-fA-F]{4}))+)"[ \t\n\r,}\]]/y;
+  const numberPattern = /(?<value>[-+]?\d+(.\d+)?([eE][-+]?\d+)?)[ \t\n\r,}\]]/y;
+  const truePattern = /(?<value>true)[ \t\n\r,}\]]/iy;
+  const falsePattern = /(?<value>false)[ \t\n\r,}\]]/iy;
+  const nullPattern = /(?<value>null)[ \t\n\r,}\]]/iy;
+  const undefinedPattern = /[^ \t\n\r,}\]]+[ \t\n\r,}\]]/y;
 
   // parser state
   const stack = [END];
