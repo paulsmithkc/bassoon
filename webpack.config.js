@@ -8,7 +8,6 @@ module.exports = (env) => {
   const banner = `@version ${package.name} ${package.version}`;
   const minimize = env ? env.minimize : false;
   console.log(banner);
-  console.log(minimize);
 
   const webpackConfig = {
     mode: 'production',

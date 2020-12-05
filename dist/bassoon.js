@@ -4,12 +4,68 @@ window.bassoon =
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 977:
+/***/ 722:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => /* export default binding */ __WEBPACK_DEFAULT_EXPORT__
-/* harmony export */ });
+
+// EXPORTS
+__webpack_require__.d(__webpack_exports__, {
+  "default": () => /* binding */ bassoon
+});
+
+;// CONCATENATED MODULE: ./src/Emitter.js
+function Emitter() {
+  var events = {};
+  var emitter = {
+    on: on,
+    emit: emit
+  };
+  return emitter;
+
+  function get(key) {
+    if (!events[key]) {
+      events[key] = {
+        callback: null,
+        queue: []
+      };
+    }
+
+    return events[key];
+  }
+
+  function on(key, callback) {
+    var event = get(key);
+    var queue = event.queue;
+    event.callback = callback;
+
+    if (callback && queue.length) {
+      // emit missed events
+      for (var i = 0; i < queue.length; ++i) {
+        callback(queue[i]);
+      }
+
+      event.queue = [];
+    }
+
+    return emitter;
+  }
+
+  function emit(key, data) {
+    var event = get(key);
+    var callback = event.callback;
+
+    if (callback) {
+      // emit current event
+      callback(data);
+    } else {
+      // save events so that they don't get dropped
+      event.queue.push(data);
+    }
+
+    return emitter;
+  }
+}
+;// CONCATENATED MODULE: ./src/Parser.js
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _wrapRegExp(re, groups) { _wrapRegExp = function _wrapRegExp(re, groups) { return new BabelRegExp(re, undefined, groups); }; var _RegExp = _wrapNativeSuper(RegExp); var _super = RegExp.prototype; var _groups = new WeakMap(); function BabelRegExp(re, flags, groups) { var _this = _RegExp.call(this, re, flags); _groups.set(_this, groups || _groups.get(re)); return _this; } _inherits(BabelRegExp, _RegExp); BabelRegExp.prototype.exec = function (str) { var result = _super.exec.call(this, str); if (result) result.groups = buildGroups(result, this); return result; }; BabelRegExp.prototype[Symbol.replace] = function (str, substitution) { if (typeof substitution === "string") { var groups = _groups.get(this); return _super[Symbol.replace].call(this, str, substitution.replace(/\$<([^>]+)>/g, function (_, name) { return "$" + groups[name]; })); } else if (typeof substitution === "function") { var _this = this; return _super[Symbol.replace].call(this, str, function () { var args = []; args.push.apply(args, arguments); if (_typeof(args[args.length - 1]) !== "object") { args.push(buildGroups(args, _this)); } return substitution.apply(this, args); }); } else { return _super[Symbol.replace].call(this, str, substitution); } }; function buildGroups(result, re) { var g = _groups.get(re); return Object.keys(g).reduce(function (groups, name) { groups[name] = result[g[name]]; return groups; }, Object.create(null)); } return _wrapRegExp.apply(this, arguments); }
@@ -32,7 +88,346 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
-/* harmony default export */ function __WEBPACK_DEFAULT_EXPORT__(arg1) {
+function Parser(callback) {
+  // states
+  var BEGIN = 0;
+  var ARRAY = 1;
+  var OBJECT = 2;
+  var KEY = 3;
+  var VALUE = 4;
+  var STRING = 5;
+  var NUMBER = 6;
+  var TRUE = 7;
+  var FALSE = 8;
+  var NULL = 9;
+  var UNDEFINED = 10;
+  var END = 11; // patterns
+  // const whitespacePattern = /^[ \t\n\r]+/;
+
+  var keyPattern = /*#__PURE__*/_wrapRegExp(new RegExp("[\\t-\\r \\xA0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\uFEFF]*((\"((?:(?!\")[\\s\\S])+)\")|([0-9A-Z_a-z]+))[\\t-\\r \\xA0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\uFEFF]*:[\\t-\\r \\xA0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\uFEFF]*", "y"), {
+    value1: 3,
+    value2: 4
+  });
+
+  var stringPattern = /*#__PURE__*/_wrapRegExp(new RegExp("[\\t-\\r \\xA0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\uFEFF]*\"((((?:(?!\")[\\s\\S])+)|(\\[\"\\/bfnrtv\\])|(u[0-9A-Fa-f]{4}))+)\"[\\t-\\r ,\\]\\}\\xA0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\uFEFF]", "y"), {
+    value: 1
+  });
+
+  var numberPattern = /*#__PURE__*/_wrapRegExp(new RegExp("[\\t-\\r \\xA0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\uFEFF]*([\\+\\x2D]?[0-9]+(.[0-9]+)?([Ee][\\+\\x2D]?[0-9]+)?)[\\t-\\r ,\\]\\}\\xA0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\uFEFF]", "y"), {
+    value: 1
+  });
+
+  var truePattern = /*#__PURE__*/_wrapRegExp(new RegExp("[\\t-\\r \\xA0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\uFEFF]*(true)[\\t-\\r ,\\]\\}\\xA0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\uFEFF]", "iy"), {
+    value: 1
+  });
+
+  var falsePattern = /*#__PURE__*/_wrapRegExp(new RegExp("[\\t-\\r \\xA0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\uFEFF]*(false)[\\t-\\r ,\\]\\}\\xA0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\uFEFF]", "iy"), {
+    value: 1
+  });
+
+  var nullPattern = /*#__PURE__*/_wrapRegExp(new RegExp("[\\t-\\r \\xA0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\uFEFF]*(null)[\\t-\\r ,\\]\\}\\xA0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\uFEFF]", "iy"), {
+    value: 1
+  });
+
+  var undefinedPattern = new RegExp("\\s*[^,}\\]\\s]+[,}\\]\\s]", "y"); // parser state
+
+  var stack = [END];
+  var state = BEGIN;
+  var key = null;
+  var value = null;
+  var match = null;
+  var buffer = '';
+  var i = 0; // build and return parser object
+
+  var parser = {
+    parse: parse,
+    end: end,
+    callback: callback
+  };
+  return parser;
+
+  function emit(key, data) {
+    // console.log(' '.repeat(stack.length * 2), key, data);
+    callback = parser.callback;
+
+    if (callback) {
+      callback({
+        key: key,
+        data: data,
+        depth: stack.length - 1
+      });
+    }
+  }
+
+  function parseKey() {
+    var pattern = keyPattern;
+    pattern.lastIndex = i;
+    match = pattern.exec(buffer);
+
+    if (match) {
+      i = pattern.lastIndex - 1;
+      key = match.groups.value1 || match.groups.value2;
+      emit('key', key);
+      state = VALUE;
+      return true;
+    } else {
+      // console.log('key incomplete', buffer.substr(i, 20), '...');
+      return false;
+    }
+  }
+
+  function parseValue(type) {
+    var pattern = null;
+
+    switch (type) {
+      case STRING:
+        pattern = stringPattern;
+        break;
+
+      case NUMBER:
+        pattern = numberPattern;
+        break;
+
+      case TRUE:
+        pattern = truePattern;
+        break;
+
+      case FALSE:
+        pattern = falsePattern;
+        break;
+
+      case NULL:
+        pattern = nullPattern;
+        break;
+
+      case UNDEFINED:
+        pattern = undefinedPattern;
+        break;
+    }
+
+    pattern.lastIndex = i;
+    match = pattern.exec(buffer);
+
+    if (match) {
+      // exclude the terminating ,}]
+      i = pattern.lastIndex - 2;
+
+      switch (type) {
+        case STRING:
+          value = match.groups.value;
+          break;
+
+        case NUMBER:
+          value = parseFloat(match.groups.value);
+          break;
+
+        case TRUE:
+          value = true;
+          break;
+
+        case FALSE:
+          value = false;
+          break;
+
+        case NULL:
+          value = null;
+          break;
+
+        case UNDEFINED:
+          value = undefined;
+          break;
+      }
+
+      emit('value', value);
+      state = stack.pop();
+      return true;
+    } else {
+      // console.log('value incomplete', buffer.substr(i, 20), '...');
+      return false;
+    }
+  }
+
+  function parse(chunk) {
+    buffer += chunk; // console.log('parse', buffer.substr(i, 20), '...');
+    // console.log('parse state', state);
+
+    for (; i < buffer.length; ++i) {
+      var c = buffer[i];
+
+      switch (state) {
+        case END:
+          // skip all remaining text
+          i = buffer.length;
+          break;
+
+        case BEGIN:
+        case VALUE:
+          switch (c) {
+            case ' ':
+            case '\t':
+            case '\n':
+            case '\r':
+              // ignore whitespace
+              break;
+
+            case '[':
+              emit('openarray');
+              state = ARRAY;
+              break;
+
+            case '{':
+              emit('openobject');
+              state = OBJECT;
+              break;
+
+            case '"':
+              if (!parseValue(STRING)) {
+                // continue parsing when we get more data
+                return;
+              }
+
+              break;
+
+            case '-':
+            case '+':
+            case '.':
+            case '0':
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9':
+              if (!parseValue(NUMBER)) {
+                // continue parsing when we get more data
+                return;
+              }
+
+              break;
+
+            case 't':
+            case 'T':
+              if (!parseValue(TRUE)) {
+                // continue parsing when we get more data
+                return;
+              }
+
+              break;
+
+            case 'f':
+            case 'F':
+              if (!parseValue(FALSE)) {
+                // continue parsing when we get more data
+                return;
+              }
+
+              break;
+
+            case 'n':
+            case 'N':
+              if (!parseValue(NULL)) {
+                // continue parsing when we get more data
+                return;
+              }
+
+              break;
+
+            default:
+              if (!parseValue(UNDEFINED)) {
+                // continue parsing when we get more data
+                return;
+              }
+
+              break;
+          }
+
+          break;
+
+        case ARRAY:
+          switch (c) {
+            case ' ':
+            case '\t':
+            case '\n':
+            case '\r':
+              // ignore whitespace
+              break;
+
+            case ']':
+              emit('closearray');
+              state = stack.pop();
+              break;
+
+            case ',':
+              // ignore extra commas
+              break;
+
+            default:
+              stack.push(state);
+              state = VALUE;
+              --i;
+              break;
+          }
+
+          break;
+
+        case OBJECT:
+          switch (c) {
+            case ' ':
+            case '\t':
+            case '\n':
+            case '\r':
+              // ignore whitespace
+              break;
+
+            case '}':
+              emit('closeobject');
+              state = stack.pop();
+              break;
+
+            case '{':
+            case '[':
+            case ']':
+            case ',':
+              // ignore stray characters
+              break;
+
+            default:
+              stack.push(state);
+              state = KEY;
+              --i;
+              break;
+          }
+
+          break;
+
+        case KEY:
+          if (!parseKey()) {
+            // continue parsing when we get more data
+            return;
+          }
+
+          break;
+
+        default:
+          throw new Error('unexpected state ' + state);
+      }
+    }
+
+    buffer = buffer.substring(i);
+    i = 0;
+  }
+
+  function end() {
+    return parse(',');
+  }
+}
+;// CONCATENATED MODULE: ./src/bassoon.js
+
+
+function bassoon(arg1) {
   'use strict';
 
   if (typeof arg1 === 'string') {
@@ -183,395 +578,6 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 
     return emitter;
   }
-
-  function Emitter() {
-    var events = {};
-    var emitter = {
-      on: on,
-      emit: emit
-    };
-    return emitter;
-
-    function get(key) {
-      if (!events[key]) {
-        events[key] = {
-          callback: null,
-          queue: []
-        };
-      }
-
-      return events[key];
-    }
-
-    function on(key, callback) {
-      var event = get(key);
-      var queue = event.queue;
-      event.callback = callback;
-
-      if (callback && queue.length) {
-        // emit missed events
-        for (var i = 0; i < queue.length; ++i) {
-          callback(queue[i]);
-        }
-
-        event.queue = [];
-      }
-
-      return emitter;
-    }
-
-    function emit(key, data) {
-      var event = get(key);
-      var callback = event.callback;
-
-      if (callback) {
-        // emit current event
-        callback(data);
-      } else {
-        // save events so that they don't get dropped
-        event.queue.push(data);
-      }
-
-      return emitter;
-    }
-  }
-
-  function Parser(callback) {
-    // states
-    var BEGIN = 0;
-    var ARRAY = 1;
-    var OBJECT = 2;
-    var KEY = 3;
-    var VALUE = 4;
-    var STRING = 5;
-    var NUMBER = 6;
-    var TRUE = 7;
-    var FALSE = 8;
-    var NULL = 9;
-    var UNDEFINED = 10;
-    var END = 11; // patterns
-    // const whitespacePattern = /^[ \t\n\r]+/;
-
-    var keyPattern = /*#__PURE__*/_wrapRegExp(new RegExp("[\\t-\\r \\xA0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\uFEFF]*((\"((?:(?!\")[\\s\\S])+)\")|([0-9A-Z_a-z]+))[\\t-\\r \\xA0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\uFEFF]*:[\\t-\\r \\xA0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\uFEFF]*", "y"), {
-      value1: 3,
-      value2: 4
-    });
-
-    var stringPattern = /*#__PURE__*/_wrapRegExp(new RegExp("[\\t-\\r \\xA0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\uFEFF]*\"((((?:(?!\")[\\s\\S])+)|(\\[\"\\/bfnrtv\\])|(u[0-9A-Fa-f]{4}))+)\"[\\t-\\r ,\\]\\}\\xA0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\uFEFF]", "y"), {
-      value: 1
-    });
-
-    var numberPattern = /*#__PURE__*/_wrapRegExp(new RegExp("[\\t-\\r \\xA0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\uFEFF]*([\\+\\x2D]?[0-9]+(.[0-9]+)?([Ee][\\+\\x2D]?[0-9]+)?)[\\t-\\r ,\\]\\}\\xA0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\uFEFF]", "y"), {
-      value: 1
-    });
-
-    var truePattern = /*#__PURE__*/_wrapRegExp(new RegExp("[\\t-\\r \\xA0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\uFEFF]*(true)[\\t-\\r ,\\]\\}\\xA0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\uFEFF]", "iy"), {
-      value: 1
-    });
-
-    var falsePattern = /*#__PURE__*/_wrapRegExp(new RegExp("[\\t-\\r \\xA0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\uFEFF]*(false)[\\t-\\r ,\\]\\}\\xA0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\uFEFF]", "iy"), {
-      value: 1
-    });
-
-    var nullPattern = /*#__PURE__*/_wrapRegExp(new RegExp("[\\t-\\r \\xA0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\uFEFF]*(null)[\\t-\\r ,\\]\\}\\xA0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\uFEFF]", "iy"), {
-      value: 1
-    });
-
-    var undefinedPattern = new RegExp("\\s*[^,}\\]\\s]+[,}\\]\\s]", "y"); // parser state
-
-    var stack = [END];
-    var state = BEGIN;
-    var key = null;
-    var value = null;
-    var match = null;
-    var buffer = '';
-    var i = 0; // build and return parser object
-
-    var parser = {
-      parse: parse,
-      end: end,
-      callback: callback
-    };
-    return parser;
-
-    function emit(key, data) {
-      // console.log(' '.repeat(stack.length * 2), key, data);
-      callback = parser.callback;
-
-      if (callback) {
-        callback({
-          key: key,
-          data: data,
-          depth: stack.length - 1
-        });
-      }
-    }
-
-    function parseKey() {
-      var pattern = keyPattern;
-      pattern.lastIndex = i;
-      match = pattern.exec(buffer);
-
-      if (match) {
-        i = pattern.lastIndex - 1;
-        key = match.groups.value1 || match.groups.value2;
-        emit('key', key);
-        state = VALUE;
-        return true;
-      } else {
-        // console.log('key incomplete', buffer.substr(i, 20), '...');
-        return false;
-      }
-    }
-
-    function parseValue(type) {
-      var pattern = null;
-
-      switch (type) {
-        case STRING:
-          pattern = stringPattern;
-          break;
-
-        case NUMBER:
-          pattern = numberPattern;
-          break;
-
-        case TRUE:
-          pattern = truePattern;
-          break;
-
-        case FALSE:
-          pattern = falsePattern;
-          break;
-
-        case NULL:
-          pattern = nullPattern;
-          break;
-
-        case UNDEFINED:
-          pattern = undefinedPattern;
-          break;
-      }
-
-      pattern.lastIndex = i;
-      match = pattern.exec(buffer);
-
-      if (match) {
-        // exclude the terminating ,}]
-        i = pattern.lastIndex - 2;
-
-        switch (type) {
-          case STRING:
-            value = match.groups.value;
-            break;
-
-          case NUMBER:
-            value = parseFloat(match.groups.value);
-            break;
-
-          case TRUE:
-            value = true;
-            break;
-
-          case FALSE:
-            value = false;
-            break;
-
-          case NULL:
-            value = null;
-            break;
-
-          case UNDEFINED:
-            value = undefined;
-            break;
-        }
-
-        emit('value', value);
-        state = stack.pop();
-        return true;
-      } else {
-        // console.log('value incomplete', buffer.substr(i, 20), '...');
-        return false;
-      }
-    }
-
-    function parse(chunk) {
-      buffer += chunk; // console.log('parse', buffer.substr(i, 20), '...');
-      // console.log('parse state', state);
-
-      for (; i < buffer.length; ++i) {
-        var c = buffer[i];
-
-        switch (state) {
-          case END:
-            // skip all remaining text
-            i = buffer.length;
-            break;
-
-          case BEGIN:
-          case VALUE:
-            switch (c) {
-              case ' ':
-              case '\t':
-              case '\n':
-              case '\r':
-                // ignore whitespace
-                break;
-
-              case '[':
-                emit('openarray');
-                state = ARRAY;
-                break;
-
-              case '{':
-                emit('openobject');
-                state = OBJECT;
-                break;
-
-              case '"':
-                if (!parseValue(STRING)) {
-                  // continue parsing when we get more data
-                  return;
-                }
-
-                break;
-
-              case '-':
-              case '+':
-              case '.':
-              case '0':
-              case '1':
-              case '2':
-              case '3':
-              case '4':
-              case '5':
-              case '6':
-              case '7':
-              case '8':
-              case '9':
-                if (!parseValue(NUMBER)) {
-                  // continue parsing when we get more data
-                  return;
-                }
-
-                break;
-
-              case 't':
-              case 'T':
-                if (!parseValue(TRUE)) {
-                  // continue parsing when we get more data
-                  return;
-                }
-
-                break;
-
-              case 'f':
-              case 'F':
-                if (!parseValue(FALSE)) {
-                  // continue parsing when we get more data
-                  return;
-                }
-
-                break;
-
-              case 'n':
-              case 'N':
-                if (!parseValue(NULL)) {
-                  // continue parsing when we get more data
-                  return;
-                }
-
-                break;
-
-              default:
-                if (!parseValue(UNDEFINED)) {
-                  // continue parsing when we get more data
-                  return;
-                }
-
-                break;
-            }
-
-            break;
-
-          case ARRAY:
-            switch (c) {
-              case ' ':
-              case '\t':
-              case '\n':
-              case '\r':
-                // ignore whitespace
-                break;
-
-              case ']':
-                emit('closearray');
-                state = stack.pop();
-                break;
-
-              case ',':
-                // ignore extra commas
-                break;
-
-              default:
-                stack.push(state);
-                state = VALUE;
-                --i;
-                break;
-            }
-
-            break;
-
-          case OBJECT:
-            switch (c) {
-              case ' ':
-              case '\t':
-              case '\n':
-              case '\r':
-                // ignore whitespace
-                break;
-
-              case '}':
-                emit('closeobject');
-                state = stack.pop();
-                break;
-
-              case '{':
-              case '[':
-              case ']':
-              case ',':
-                // ignore stray characters
-                break;
-
-              default:
-                stack.push(state);
-                state = KEY;
-                --i;
-                break;
-            }
-
-            break;
-
-          case KEY:
-            if (!parseKey()) {
-              // continue parsing when we get more data
-              return;
-            }
-
-            break;
-
-          default:
-            throw new Error('unexpected state ' + state);
-        }
-      }
-
-      buffer = buffer.substring(i);
-      i = 0;
-    }
-
-    function end() {
-      return parse(',');
-    }
-  }
 }
 
 /***/ })
@@ -623,6 +629,6 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 /******/ 	// module exports must be returned from runtime so entry inlining is disabled
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(977);
+/******/ 	return __webpack_require__(722);
 /******/ })()
 .default;
