@@ -1,4 +1,4 @@
-/*! bassoon 1.0.0 */
+/*! @version bassoon 1.0.0 */
 window.bassoon =
 /******/ (() => { // webpackBootstrap
 /******/ 	"use strict";

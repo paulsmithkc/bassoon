@@ -1,10 +1,11 @@
 const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
+const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = (env) => {
   const package = JSON.parse(fs.readFileSync('./package.json'));
-  const banner = `${package.name} ${package.version}`;
+  const banner = `@version ${package.name} ${package.version}`;
   const minimize = env ? env.minimize : false;
   console.log(banner);
   console.log(minimize);
@@ -32,8 +33,20 @@ module.exports = (env) => {
         },
       ],
     },
-    optimization: { minimize },
-    plugins: [new webpack.BannerPlugin(banner)],
+    optimization: {
+      minimize,
+      minimizer: [
+        new TerserPlugin({
+          terserOptions: {
+            format: {
+              comments: /@version/i,
+            },
+          },
+          extractComments: false,
+        }),
+      ],
+    },
+    plugins: [new webpack.BannerPlugin({ banner, entryOnly: true })],
   };
 
   return webpackConfig;
