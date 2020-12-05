@@ -1,4 +1,4 @@
-function bassoon(arg1) {
+export default function (arg1) {
   'use strict';
 
   if (typeof arg1 === 'string') {
@@ -426,4 +426,4 @@ function bassoon(arg1) {
       return parse(',');
     }
   }
-}
+};
