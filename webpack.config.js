@@ -20,6 +20,7 @@ module.exports = (env) => {
       filename: '[name].js',
       library: 'bassoon',
       libraryTarget: 'window',
+      libraryExport: 'default',
     },
     module: {
       rules: [
