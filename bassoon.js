@@ -1,4 +1,4 @@
-function oboe(arg1) {
+function bassoon(arg1) {
   'use strict';
 
   if (typeof arg1 === 'string') {

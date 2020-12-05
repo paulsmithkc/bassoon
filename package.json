@@ -1,11 +1,9 @@
 {
-  "name": "oboe-browser",
+  "name": "bassoon",
   "version": "1.0.0",
   "description": "a browser optimized fork of oboejs",
-  "main": "oboe.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "main": "bassoon.js",
+  "scripts": {},
   "author": "Paul Smith",
   "license": "MIT"
 }
