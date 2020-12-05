@@ -1,0 +1,2 @@
+{str:"foo",num:1,t:true,f:false,n:null,udf:udf}
+{"str":"bar","num":2,"t":true,"f":false,"n":null,"udf":udf}

@@ -10,9 +10,9 @@
 
     <script src="bassoon.js"></script>
     <script>
-      bassoon('http://localhost:5500/example.json')
+      bassoon('/example.json')
         .on('text', (text) => console.log('text', text.substr(0, 20), '...'))
-        .on('data', (data) => console.log('data', data))
+        .on('data', (data) => console.log('data', JSON.stringify(data)))
         .on('end', (evt) => console.log('done', evt))
         .on('error', (evt) => console.error('error', evt));
     </script>

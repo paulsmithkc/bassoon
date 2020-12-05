@@ -11,9 +11,68 @@ function bassoon(arg1) {
     const emitter = Emitter();
     const parser = Parser();
     let seen = 0;
+    let stack = [];
+    let curObj = null;
+    let curKey = null;
 
     parser.callback = function ({ key, data, depth }) {
-      console.log(' '.repeat(depth * 2), key, data);
+      //console.log(' '.repeat(depth * 2), key, data);
+      if (curObj) {
+        // processing object/array
+        switch (key) {
+          case 'openarray':
+            stack.push({ curObj, curKey });
+            curObj = [];
+            curKey = null;
+            break;
+          case 'openobject':
+            stack.push({ curObj, curKey });
+            curObj = {};
+            curKey = null;
+            break;
+          case 'closearray':
+          case 'closeobject':
+            if (stack.length) {
+              let data = curObj;
+              ({ curObj, curKey } = stack.pop());
+              if (curKey !== null) {
+                curObj[curKey] = data;
+                curKey = null;
+              } else {
+                curObj.push(data);
+              }
+            } else {
+              emitter.emit('data', curObj);
+              curObj = curKey = null;
+            }
+            break;
+          case 'key':
+            curKey = data;
+            break;
+          case 'value':
+            if (curKey !== null) {
+              curObj[curKey] = data;
+              curKey = null;
+            } else {
+              curObj.push(data);
+            }
+            break;
+        }
+      } else {
+        // processing root
+        switch (key) {
+          case 'openarray':
+          case 'closearray':
+            // ignore root array
+            break;
+          case 'openobject':
+            curObj = {};
+            break;
+          case 'value':
+            emitter.emit('data', data);
+            break;
+        }
+      }
     };
 
     try {
@@ -32,6 +91,12 @@ function bassoon(arg1) {
         }
       };
       xhr.onload = function (event) {
+        parser.end();
+        if (stack.length) {
+          emitter.emit('data', stack[0]);
+        } else if (curObj) {
+          emitter.emit('data', curObj);
+        }
         emitter.emit('end', {
           status: xhr.status,
           statusText: xhr.statusText,
@@ -110,12 +175,12 @@ function bassoon(arg1) {
     // patterns
     // const whitespacePattern = /^[ \t\n\r]+/;
     const keyPattern = /\s*(("(?<value1>[^\"]+)")|(?<value2>\w+))\s*:\s*/y;
-    const stringPattern = /\s*"(?<value>(([^\"]+)|(\["\/bfnrtv])|(\u[0-9a-fA-F]{4}))+)"\s*[,}\]]/y;
-    const numberPattern = /\s*(?<value>[-+]?\d+(.\d+)?([eE][-+]?\d+)?)\s*[,}\]]/y;
-    const truePattern = /\s*(?<value>true)\s*[,}\]]/iy;
-    const falsePattern = /\s*(?<value>false)\s*[,}\]]/iy;
-    const nullPattern = /\s*(?<value>null)\s*[,}\]]/iy;
-    const undefinedPattern = /[^,}\]]*[,}\]]/y;
+    const stringPattern = /\s*"(?<value>(([^\"]+)|(\["\/bfnrtv])|(\u[0-9a-fA-F]{4}))+)"[,}\]\s]/y;
+    const numberPattern = /\s*(?<value>[-+]?\d+(.\d+)?([eE][-+]?\d+)?)[,}\]\s]/y;
+    const truePattern = /\s*(?<value>true)[,}\]\s]/iy;
+    const falsePattern = /\s*(?<value>false)[,}\]\s]/iy;
+    const nullPattern = /\s*(?<value>null)[,}\]\s]/iy;
+    const undefinedPattern = /\s*[^,}\]\s]+[,}\]\s]/y;
 
     // parser state
     const stack = [END];
@@ -149,7 +214,7 @@ function bassoon(arg1) {
         state = VALUE;
         return true;
       } else {
-        console.log('key incomplete', buffer.substr(i, 20), '...');
+        // console.log('key incomplete', buffer.substr(i, 20), '...');
         return false;
       }
     }
@@ -208,7 +273,7 @@ function bassoon(arg1) {
         state = stack.pop();
         return true;
       } else {
-        console.log('value incomplete', buffer.substr(i, 20), '...');
+        // console.log('value incomplete', buffer.substr(i, 20), '...');
         return false;
       }
     }
