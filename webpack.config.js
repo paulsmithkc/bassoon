@@ -7,19 +7,20 @@ module.exports = (env) => {
   const package = JSON.parse(fs.readFileSync('./package.json'));
   const banner = `@version ${package.name} ${package.version}`;
   const minimize = env ? env.minimize : false;
+  const worker = env ? env.worker : false;
   console.log(banner);
 
   const webpackConfig = {
     mode: 'production',
-    target: 'web',
-    entry: minimize
-      ? { 'bassoon.min': './src/bassoon.js' }
+    target: worker ? 'webworker' : 'web',
+    entry: worker
+      ? { 'bassoon-worker': './src/bassoon-worker.js' }
       : { bassoon: './src/bassoon.js' },
     output: {
       path: path.resolve(__dirname, 'dist/'),
-      filename: '[name].js',
-      library: 'bassoon',
-      libraryTarget: 'window',
+      filename: minimize ? '[name].min.js' : '[name].js',
+      library: worker ? undefined : 'bassoon',
+      libraryTarget: worker ? undefined : 'window',
       libraryExport: 'default',
     },
     module: {

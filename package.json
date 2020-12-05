@@ -4,7 +4,7 @@
   "description": "a browser optimized fork of oboejs",
   "main": "bassoon.js",
   "scripts": {
-    "build": "webpack && webpack --env minimize"
+    "build": "webpack --env minimize && webpack --env minimize --env worker"
   },
   "author": "Paul Smith",
   "license": "MIT",
