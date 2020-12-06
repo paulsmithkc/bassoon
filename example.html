@@ -11,8 +11,8 @@
     <script src="/dist/bassoon.min.js"></script>
     <script>
       window.onload = function () {
-        bassoon('/example.json')
-          .on('text', (text) => console.log('text', text.substr(0, 20), '...'))
+        bassoon({url: '/example.json', chunkSize: 10})
+          //.on('text', (text) => console.log('text', text.substr(0, 20), '...'))
           .on('data', (data) => console.log('data', JSON.stringify(data)))
           .on('end', (evt) => console.log('done', evt))
           .on('error', (evt) => console.error('error', evt));
