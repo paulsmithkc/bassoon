@@ -15,7 +15,7 @@ module.exports = (env) => {
     target: worker ? 'webworker' : 'web',
     entry: worker
       ? { 'bassoon-worker': './src/bassoon-worker.js' }
-      : { bassoon: './src/bassoon.js' },
+      : { bassoon: './src/bassoon.mjs' },
     output: {
       path: path.resolve(__dirname, 'dist/'),
       filename: minimize ? '[name].min.js' : '[name].js',
@@ -27,7 +27,7 @@ module.exports = (env) => {
       rules: [
         {
           include: [path.resolve(__dirname, 'src/')],
-          test: /\.js$/i,
+          test: /\.m?js$/i,
           loader: 'babel-loader',
           options: { presets: ['@babel/preset-env'] },
         },

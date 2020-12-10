@@ -1,5 +1,5 @@
-import Emitter from './Emitter';
-import Parser from './Parser';
+import Emitter from './Emitter.mjs';
+import Parser from './Parser.mjs';
 
 export default function bassoon(arg1) {
   'use strict';

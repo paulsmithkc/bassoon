@@ -2,7 +2,7 @@
   "name": "bassoon",
   "version": "1.0.0",
   "description": "a browser optimized fork of oboejs",
-  "main": "bassoon.js",
+  "main": "index.mjs",
   "scripts": {
     "build": "webpack --env minimize && webpack --env minimize --env worker"
   },
