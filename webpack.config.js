@@ -23,15 +23,17 @@ module.exports = (env) => {
 
   const webpackConfig = {
     mode: 'production',
-    target: worker ? 'webworker' : 'web',
+    target: worker ? 'webworker' : ['webworker', 'web'],
     entry: worker
       ? { 'bassoon-worker': './src/bassoon-worker.js' }
       : { bassoon: './src/bassoon.mjs' },
     output: {
+      chunkLoading: false,
+      wasmLoading: false,
       path: path.resolve(__dirname, 'dist/'),
       filename: minimize ? '[name].min.js' : '[name].js',
       library: worker ? undefined : 'bassoon',
-      libraryTarget: worker ? undefined : 'window',
+      libraryTarget: worker ? undefined : 'global',
       libraryExport: 'default',
     },
     module: {
