@@ -11,15 +11,21 @@ export default function bassoon(arg1) {
   }
 
   function run(args) {
+    // arguments
+    const url = args.url;
+    const method = args.method || 'GET';
+    const withCredentials = args.withCredentials || false;
+    const chunkSize = args.chunkSize;
+
+    // request state
     const emitter = Emitter();
-    const parser = Parser();
+    const parser = Parser(parse);
     let seen = 0;
+    let chunk = [];
     let stack = [];
     let curObj = null;
     let curKey = null;
-    let chunk = [];
-    let chunkSize = args.chunkSize;
-
+    
     function emitData(data) {
       if (chunkSize) {
         chunk.push(data);
@@ -32,7 +38,7 @@ export default function bassoon(arg1) {
       }
     }
 
-    parser.callback = function ({ key, data, depth }) {
+    function parse({ key, data, depth }) {
       //console.log(' '.repeat(depth * 2), key, data);
       if (curObj) {
         // processing object/array
@@ -94,9 +100,9 @@ export default function bassoon(arg1) {
 
     try {
       const xhr = new XMLHttpRequest();
-      xhr.open(args.method || 'GET', args.url);
+      xhr.open(method || 'GET', url);
       xhr.responseType = 'text';
-      xhr.withCredentials = args.withCredentials || false;
+      xhr.withCredentials = withCredentials;
 
       xhr.onreadystatechange = function (evt) {
         if (xhr.readyState > 2) {
