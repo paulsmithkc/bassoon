@@ -3,7 +3,7 @@
   "version": "1.0.3",
   "description": "a simplified and optimized fork of oboejs",
   "keywords": ["oboe", "clarinet", "sax", "xhr", "stream", "front-end"],
-  "main": "index.mjs",
+  "main": "index.js",
   "scripts": {
     "build": "webpack --env minimize && webpack --env worker"
   },
