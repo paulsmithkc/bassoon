@@ -53,23 +53,10 @@ bassoon({
 For better performance bassoon can stream data using the provided web worker script.
 
 ```
-const worker = new Worker('bassoon-worker.min.js');
-worker.onmessage = (evt) => {
-  const cmd = evt.data.cmd;
-  const data = evt.data.data;
-  switch (evt.data.cmd) {
-    case 'data':
-      /* object received... */
-      break;
-    case 'end':
-      /* end of stream... */
-      break;
-    case 'error':
-      /* error occurred, stream stopped... */
-      break;
-  }
-};
-worker.postMessage({ cmd: 'start', args: { url: '/api/example/list' } });
+bassoon({url: '/api/example/list', worker: true })
+  .on('data', (data) => { /* object received... */ }))
+  .on('end', (evt) => { /* end of stream... */ })
+  .on('error', (err) => { /* error occurred, stream stopped... */ });
 ```
 
 ## Related
