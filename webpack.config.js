@@ -46,8 +46,9 @@ module.exports = (env) => {
         },
       ],
     },
+    devtool: minimize ? 'source-map' : false,
     optimization: {
-      minimize,
+      minimize: minimize,
       minimizer: [
         new TerserPlugin({
           terserOptions: {
