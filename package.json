@@ -2,7 +2,7 @@
   "name": "bassoon",
   "version": "1.0.5",
   "description": "a simplified and optimized fork of oboejs",
-  "keywords": ["oboe", "clarinet", "sax", "xhr", "stream", "front-end"],
+  "keywords": ["oboe", "clarinet", "sax", "ajax", "xhr", "fetch", "stream", "json", "array", "object", "front-end"],
   "main": "index.js",
   "scripts": {
     "build": "webpack --env minimize && webpack --env worker"
