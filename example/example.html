@@ -15,7 +15,7 @@
           //.on('text', (text) => console.log('text', text.substr(0, 20), '...'))
           .on('data', (data) => console.log('data', JSON.stringify(data)))
           .on('end', (evt) => console.log('done', evt))
-          .on('error', (evt) => console.error('error', evt));
+          .on('error', (err) => console.error('error', err));
       };
     </script>
   </body>

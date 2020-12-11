@@ -105,43 +105,54 @@ export default function bassoon(arg1) {
       xhr.withCredentials = withCredentials;
 
       xhr.onreadystatechange = function (evt) {
-        if (xhr.readyState > 2) {
-          const fullText = xhr.responseText;
-          const newText = fullText.substr(seen);
-          seen = fullText.length;
-          parser.parse(newText);
+        try {
+          if (xhr.readyState > 2) {
+            const fullText = xhr.responseText;
+            const newText = fullText.substr(seen);
+            seen = fullText.length;
+            parser.parse(newText);
+          }
+        } catch (error) {
+          xhr.onreadystatechange = null;
+          xhr.onload = null;
+          xhr.onerror = null;
+          xhr.abort();
+          emitter.emit('error', error);
         }
       };
       xhr.onload = function (event) {
-        // let the parser terminate any partial values
-        parser.end();
-        // emit the last object, even if it is incomplete
-        if (stack.length) {
-          emitData(stack[0]);
-        } else if (curObj) {
-          emitData(curObj);
+        try {
+          // let the parser terminate any partial values
+          parser.end();
+          // emit the last object, even if it is incomplete
+          if (stack.length) {
+            emitData(stack[0]);
+          } else if (curObj) {
+            emitData(curObj);
+          }
+          // emit the last chunk
+          if (chunk.length) {
+            emitter.emit('data', chunk);
+          }
+          emitter.emit('end', {
+            status: xhr.status,
+            statusText: xhr.statusText,
+          });
+        } catch (error) {
+          emitter.emit('error', error);
         }
-        // emit the last chunk
-        if (chunk.length) {
-          emitter.emit('data', chunk);
-        }
-        emitter.emit('end', {
-          status: xhr.status,
-          statusText: xhr.statusText,
-        });
       };
       xhr.onerror = function (event) {
-        emitter.emit('error', {
-          status: xhr.status,
-          statusText: xhr.statusText,
-          timeout: xhr.timeout,
-          event: event,
-        });
+        const error = new Error('Network Error');
+        error.status = xhr.status;
+        error.statusText = xhr.statusText;
+        error.timeout = xhr.timeout;
+        emitter.emit('error', error);
       };
 
       xhr.send();
     } catch (error) {
-      emitter.emit('error', { error });
+      emitter.emit('error', error);
     }
 
     return emitter;

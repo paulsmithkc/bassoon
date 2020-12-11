@@ -13,6 +13,6 @@ const start = (args) => {
   console.log('worker started');
   bassoon(args)
     .on('data', (data) => self.postMessage({ cmd: 'data', data }))
-    .on('end', (event) => self.postMessage({ cmd: 'end' }))
-    .on('error', (event) => self.postMessage({ cmd: 'error' }));
+    .on('end', (event) => self.postMessage({ cmd: 'end', event }))
+    .on('error', (error) => self.postMessage({ cmd: 'error', error }));
 };
