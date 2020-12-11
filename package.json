@@ -1,11 +1,11 @@
 {
   "name": "bassoon",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "a browser optimized fork of oboejs",
   "keywords": ["oboe", "clarinet", "sax", "xhr", "stream", "front-end"],
   "main": "index.mjs",
   "scripts": {
-    "build": "webpack --env minimize && webpack --env minimize --env worker"
+    "build": "webpack --env minimize && webpack --env worker"
   },
   "author": "Paul Smith",
   "license": "MIT",

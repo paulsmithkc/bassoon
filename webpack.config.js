@@ -4,11 +4,22 @@ const webpack = require('webpack');
 const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = (env) => {
-  const package = JSON.parse(fs.readFileSync('./package.json'));
+  const package = JSON.parse(
+    fs.readFileSync(path.resolve(__dirname, './package.json'))
+  );
   const banner = `@version ${package.name} ${package.version}`;
-  const minimize = env ? env.minimize : false;
   const worker = env ? env.worker : false;
+  let minimize = env ? env.minimize : false;
   console.log(banner);
+
+  if (worker) {
+    minimize = true;
+    fs.mkdirSync(path.resolve(__dirname, './dist'), { recursive: true });
+    fs.copyFileSync(
+      path.resolve(__dirname, './src/bassoon-worker.js'),
+      path.resolve(__dirname, './dist/bassoon-worker.js')
+    );
+  }
 
   const webpackConfig = {
     mode: 'production',
