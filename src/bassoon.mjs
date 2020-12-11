@@ -11,6 +11,20 @@ export default function bassoon(arg1) {
   }
 
   function run(args) {
+    // web worker integration
+    const emitter = Emitter();
+    if (args.worker && Worker) {
+      // fix the URL so that it is relative to the current page
+      args.url = new URL(args.url, location).toString();
+      // start the worker
+      const workerObj = new Worker('/dist/bassoon-worker.min.js');
+      workerObj.onmessage = function (evt) {
+        emitter.emit(evt.data.cmd, evt.data.data);
+      };
+      workerObj.postMessage({ cmd: 'start', args });
+      return emitter;
+    }
+
     // arguments
     const url = args.url;
     const method = args.method || 'GET';
@@ -18,14 +32,15 @@ export default function bassoon(arg1) {
     const chunkSize = args.chunkSize;
 
     // request state
-    const emitter = Emitter();
     const parser = Parser(parse);
     let seen = 0;
     let chunk = [];
     let stack = [];
     let curObj = null;
     let curKey = null;
-    
+
+    // methods
+
     function emitData(data) {
       if (chunkSize) {
         chunk.push(data);
@@ -96,7 +111,9 @@ export default function bassoon(arg1) {
             break;
         }
       }
-    };
+    }
+
+    // main logic
 
     try {
       const xhr = new XMLHttpRequest();

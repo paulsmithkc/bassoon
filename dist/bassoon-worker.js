@@ -10,9 +10,15 @@ self.onmessage = (evt) => {
 };
 
 const start = (args) => {
-  console.log('worker started');
-  bassoon(args)
-    .on('data', (data) => self.postMessage({ cmd: 'data', data }))
-    .on('end', (event) => self.postMessage({ cmd: 'end', event }))
-    .on('error', (error) => self.postMessage({ cmd: 'error', error }));
+  try {
+    console.log('worker started');
+    args.worker = false;
+    bassoon(args)
+      .on('data', (data) => self.postMessage({ cmd: 'data', data: data }))
+      .on('end', (event) => self.postMessage({ cmd: 'end', data: event }))
+      .on('error', (error) => self.postMessage({ cmd: 'error', data: error }));
+  } catch (error) {
+    console.error(error);
+    self.postMessage({ cmd: 'error', data: error });
+  }
 };
