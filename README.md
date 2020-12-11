@@ -11,9 +11,9 @@ bassoon('/api/example/list')
   .on('error', (err) => { /* error occurred, stream stopped... */ });
 ```
 
-The **data** event is fired every time an object is parsed from the response.
-The **end** event is fired once the response is fully loaded.
-The **error** event is fired if anything goes wrong.
+- The **data** event is fired every time an object is parsed from the response.
+- The **end** event is fired once the response is fully loaded.
+- The **error** event is fired if anything goes wrong.
 
 ## Advanced Usage
 A variety of arguments can be passed to bassoon as well.
@@ -30,10 +30,10 @@ bassoon({
   .on('error', (err) => { /* error occurred, stream stopped... */ });
 ```
 
-**url** the URL of the JSON resource to be retrieved and processed incrementally.
-**method** the HTTP verb to retrieve the resource with ("GET" by default)
-**withCredentials** passed to [xhr.withCredentials](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/withCredentials) (false by default)
-**chunkSize** Rather than triggering a data event for each object, group them into chunks send each chunk as an array. chunkSize specifies the maximum size for each chunk, but chunks may be smaller than the chunkSize. (chunking disabled by default)
+- **url** the URL of the JSON resource to be retrieved and processed incrementally.
+- **method** the HTTP verb to retrieve the resource with ("GET" by default)
+- **withCredentials** passed to [xhr.withCredentials](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/withCredentials) (false by default)
+- **chunkSize** Rather than triggering a data event for each object, group them into chunks send each chunk as an array. chunkSize specifies the maximum size for each chunk, but chunks may be smaller than the chunkSize. (chunking disabled by default)
 
 ## Web Worker
 For better performance bassoon can stream data using the provided web worker script.
