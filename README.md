@@ -1,6 +1,20 @@
 # Bassoon.js
 A simplified and optimized fork of [oboejs.](http://oboejs.com/) This package will allow you to easily stream an array of JSON objects to your front-end.
 
+## Install w/ Express
+First install the npm package.
+```
+npm install bassoon
+```
+Then serve the built script files up.
+```
+app.use('/bassoon', express.static('node_modules/bassoon/dist'));
+```
+And finally link the script in your HTML/view.
+```
+<script src="/bassoon/bassoon.min.js"></script>
+```
+
 ## Basic Usage
 To stream an array of JSON objects subscribe to the **data,** **end,** and **error** events.
 
@@ -59,10 +73,10 @@ worker.postMessage({ cmd: 'start', args: { url: '/api/example/list' } });
 ```
 
 ## Related
-* [Why Oboe.js?](http://oboejs.com/why)
-* [oboe](https://www.npmjs.com/package/oboe)
-* [clarinet](https://www.npmjs.com/package/clarinet)
-* [sax](https://www.npmjs.com/package/sax)
-* [SAX Parsers](https://docs.oracle.com/javase/tutorial/jaxp/sax/parsing.html)
-* [Node.js Streams](https://nodejs.dev/learn/nodejs-streams)
-* [XHR API](https://hpbn.co/xmlhttprequest/)
+- [Why Oboe.js?](http://oboejs.com/why)
+- [oboe](https://www.npmjs.com/package/oboe)
+- [clarinet](https://www.npmjs.com/package/clarinet)
+- [sax](https://www.npmjs.com/package/sax)
+- [SAX Parsers](https://docs.oracle.com/javase/tutorial/jaxp/sax/parsing.html)
+- [Node.js Streams](https://nodejs.dev/learn/nodejs-streams)
+- [XHR API](https://hpbn.co/xmlhttprequest/)
