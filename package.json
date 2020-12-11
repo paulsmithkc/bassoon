@@ -1,7 +1,7 @@
 {
   "name": "bassoon",
   "version": "1.0.2",
-  "description": "a browser optimized fork of oboejs",
+  "description": "a simplified and optimized fork of oboejs",
   "keywords": ["oboe", "clarinet", "sax", "xhr", "stream", "front-end"],
   "main": "index.mjs",
   "scripts": {
