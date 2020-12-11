@@ -53,7 +53,7 @@ bassoon({
 For better performance bassoon can stream data using the provided web worker script.
 
 ```
-bassoon({ url: '/api/example/list', ***worker: true*** })
+bassoon({ url: '/api/example/list', **worker: true** })
   .on('data', (data) => { /* object received... */ }))
   .on('end', (evt) => { /* end of stream... */ })
   .on('error', (err) => { /* error occurred, stream stopped... */ });
