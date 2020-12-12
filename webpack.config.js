@@ -16,7 +16,7 @@ module.exports = (env) => {
     minimize = true;
     fs.mkdirSync(path.resolve(__dirname, './dist'), { recursive: true });
     fs.copyFileSync(
-      path.resolve(__dirname, './src/bassoon-worker.js'),
+      path.resolve(__dirname, './src/bassoon-worker.mjs'),
       path.resolve(__dirname, './dist/bassoon-worker.js')
     );
   }
@@ -25,7 +25,7 @@ module.exports = (env) => {
     mode: 'production',
     target: worker ? 'webworker' : ['webworker', 'web'],
     entry: worker
-      ? { 'bassoon-worker': './src/bassoon-worker.js' }
+      ? { 'bassoon-worker': './src/bassoon-worker.mjs' }
       : { bassoon: './src/bassoon.mjs' },
     output: {
       chunkLoading: false,
