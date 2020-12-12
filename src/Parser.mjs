@@ -24,7 +24,7 @@ export default function Parser(callback) {
   const undefinedPattern = /[^ \t\n\r,}\]]+[ \t\n\r,}\]]/y;
 
   // parser state
-  const stack = [END];
+  const stack = [];
   let state = BEGIN;
   let key = null;
   let value = null;
@@ -111,7 +111,9 @@ export default function Parser(callback) {
       }
 
       emit('value', value);
-      state = stack.pop();
+      if (state !== BEGIN) {
+        state = stack.pop();
+      }
       return true;
     } else {
       // console.log('value incomplete', buffer.substr(i, 20), '...');
@@ -211,7 +213,7 @@ export default function Parser(callback) {
               break;
             case ']':
               emit('closearray');
-              state = stack.pop();
+              state = stack.length ? stack.pop() : BEGIN;
               break;
             case ',':
               // ignore extra commas
@@ -233,7 +235,7 @@ export default function Parser(callback) {
               break;
             case '}':
               emit('closeobject');
-              state = stack.pop();
+              state = stack.length ? stack.pop() : BEGIN;
               break;
             case '{':
             case '[':
