@@ -1,12 +1,2 @@
-[
-  {
-    "str": "bar",
-    "num": 2,
-    "t": true,
-    "f": false,
-    "n": null,
-    "obj": { "a": 1, "b": 2 },
-    "arr1": [1, 2],
-    "arr2": [{ "x": 3 }, { "y": 4 }]
-  }
-]
+{str:"foo",num:1,t:true,f:false,n:null,udf:udf}
+{"str":"bar","num":2,"t":true,"f":false,"n":null,"udf":udf}
