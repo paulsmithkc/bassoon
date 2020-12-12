@@ -40,7 +40,7 @@ export default function Parser(callback) {
     // console.log(' '.repeat(stack.length * 2), key, data);
     callback = parser.callback;
     if (callback) {
-      callback({ key, data, depth: stack.length - 1 });
+      callback({ key, data, depth: stack.length });
     }
   }
 
@@ -123,8 +123,6 @@ export default function Parser(callback) {
 
   function parse(chunk) {
     buffer += chunk;
-    // console.log('parse', buffer.substr(i, 20), '...');
-    // console.log('parse state', state);
 
     for (; i < buffer.length; ++i) {
       const c = buffer[i];
