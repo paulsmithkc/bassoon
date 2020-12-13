@@ -48,6 +48,8 @@ bassoon({
 - **method** the HTTP verb to retrieve the resource with ("GET" by default)
 - **withCredentials** passed to [xhr.withCredentials](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/withCredentials) (false by default)
 - **chunkSize** Rather than triggering a data event for each object, group them into chunks and send each chunk as an array. chunkSize specifies the maximum size for each chunk, but chunks may be smaller than the chunkSize. (chunking disabled by default)
+- **worker** Offload the work to web worker. (default false)
+- **workerPath** Path to worker script file. (default "/bassoon/bassoon-worker.min.js")
 
 ## Web Worker
 For better performance bassoon can stream data using the provided web worker script.

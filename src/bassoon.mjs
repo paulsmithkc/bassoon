@@ -17,7 +17,8 @@ export default function bassoon(arg1) {
       // fix the URL so that it is relative to the current page
       args.url = new URL(args.url, location).toString();
       // start the worker
-      const workerObj = new Worker('/bassoon/bassoon-worker.min.js');
+      const workerPath = args.workerPath || '/bassoon/bassoon-worker.min.js';
+      const workerObj = new Worker(workerPath);
       workerObj.onmessage = function (evt) {
         emitter.emit(evt.data.cmd, evt.data.data);
       };
