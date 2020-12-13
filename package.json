@@ -4,6 +4,7 @@
   "description": "a simplified and optimized fork of oboejs",
   "keywords": [
     "front-end",
+    "micro-library",
     "oboe",
     "clarinet",
     "sax",
@@ -17,9 +18,7 @@
     "object",
     "lexer",
     "parser",
-    "tokenizer",
-    "http",
-    "https"
+    "tokenizer"
   ],
   "main": "index.js",
   "scripts": {
