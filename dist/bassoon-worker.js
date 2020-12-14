@@ -6,19 +6,30 @@ self.onmessage = (evt) => {
   switch (cmd) {
     case 'start':
       return start(args);
+    case 'abort':
+      if (req) {
+        return req.abort();
+      } else {
+        return false;
+      }
   }
 };
+
+let req = null;
 
 const start = (args) => {
   try {
     console.log('worker started');
     args.worker = false;
-    bassoon(args)
-      .on('data', (data) => self.postMessage({ cmd: 'data', data: data }))
-      .on('end', (event) => self.postMessage({ cmd: 'end', data: event }))
-      .on('error', (error) => self.postMessage({ cmd: 'error', data: error }));
+    req = bassoon(args);
+    req.on('data', (data) => self.postMessage({ cmd: 'data', data: data }));
+    req.on('end', (event) => self.postMessage({ cmd: 'end', data: event }));
+    req.on('error', (error) => self.postMessage({ cmd: 'error', data: error }));
+    return true;
   } catch (error) {
     console.error(error);
+    if (req) req.abort();
     self.postMessage({ cmd: 'error', data: error });
+    return false;
   }
 };
