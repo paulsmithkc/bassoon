@@ -8,6 +8,7 @@ export default function bassoon(arg1) {
 
   // web worker integration
   const emitter = Emitter();
+  let aborted = false;
   if (args.worker && Worker) {
     // fix the URL so that it is relative to the current page
     args.url = new URL(args.url, location).toString();
@@ -15,9 +16,13 @@ export default function bassoon(arg1) {
     const workerPath = args.workerPath || '/bassoon/bassoon-worker.min.js';
     const workerObj = new Worker(workerPath);
     workerObj.onmessage = function (evt) {
-      emitter.emit(evt.data.cmd, evt.data.data);
+      if (!aborted) emitter.emit(evt.data.cmd, evt.data.data);
     };
     workerObj.postMessage({ cmd: 'start', args });
+    emitter.abort = function () {
+      aborted = true;
+      workerObj.postMessage({ cmd: 'abort' });
+    };
     return emitter;
   }
 
@@ -29,6 +34,7 @@ export default function bassoon(arg1) {
 
   // request state
   const parser = Parser(parse);
+  let xhr = null;
   let seen = 0;
   let chunk = [];
   let stack = [];
@@ -37,7 +43,18 @@ export default function bassoon(arg1) {
 
   // methods
 
+  function abort() {
+    aborted = true;
+    if (xhr) {
+      xhr.onreadystatechange = null;
+      xhr.onload = null;
+      xhr.onerror = null;
+      xhr.abort();
+    }
+  }
+
   function emitData(data) {
+    if (aborted) return;
     if (chunkSize) {
       chunk.push(data);
       if (chunk.length >= chunkSize) {
@@ -50,6 +67,7 @@ export default function bassoon(arg1) {
   }
 
   function parse({ key, data, depth }) {
+    if (aborted) return;
     //console.log(' '.repeat(depth * 2), key, data);
     if (curObj) {
       // processing object/array
@@ -112,7 +130,7 @@ export default function bassoon(arg1) {
   // main logic
 
   try {
-    const xhr = new XMLHttpRequest();
+    xhr = new XMLHttpRequest();
     xhr.open(method || 'GET', url);
     xhr.responseType = 'text';
     xhr.withCredentials = withCredentials;
@@ -126,10 +144,7 @@ export default function bassoon(arg1) {
           parser.parse(newText);
         }
       } catch (error) {
-        xhr.onreadystatechange = null;
-        xhr.onload = null;
-        xhr.onerror = null;
-        xhr.abort();
+        abort();
         emitter.emit('error', error);
       }
     };
@@ -165,8 +180,11 @@ export default function bassoon(arg1) {
 
     xhr.send();
   } catch (error) {
+    console.error(error);
+    abort();
     emitter.emit('error', error);
   }
 
+  emitter.abort = abort;
   return emitter;
 }
