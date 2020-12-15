@@ -35,6 +35,8 @@
     "@babel/core": "^7.12.9",
     "@babel/preset-env": "^7.12.7",
     "babel-loader": "^8.2.2",
+    "babel-plugin-minify-mangle-names": "^0.5.0",
+    "babel-plugin-minify-simplify": "^0.5.1",
     "webpack": "^5.10.0",
     "webpack-cli": "^4.2.0"
   }
