@@ -40,7 +40,7 @@ module.exports = (env) => {
           loader: 'babel-loader',
           options: {
             presets: [['@babel/preset-env', { loose: true }]],
-            plugins: ['minify-simplify', 'minify-mangle-names'],
+            plugins: ['minify-simplify', 'minify-guarded-expressions', 'minify-mangle-names'],
           },
         },
       ],
