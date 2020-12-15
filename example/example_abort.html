@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Example</title>
+  </head>
+  <body>
+    <h1>See Console</h1>
+
+    <script src="/dist/bassoon.min.js"></script>
+    <script>
+      window.onload = function () {
+        let count = 0;
+        bassoon({ url: 'example.json', chunkSize: 0, worker: false, workerPath: '/dist/bassoon-worker.min.js' })
+          .on('data', function (data) {
+            console.log('data', JSON.stringify(data));
+            if (++count >= 10) this.abort();
+          })
+          .on('end', (evt) => console.log('done', evt))
+          .on('error', (err) => console.error('error', err));
+      };
+    </script>
+  </body>
+</html>
