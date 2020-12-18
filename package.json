@@ -20,7 +20,7 @@
     "parser",
     "tokenizer"
   ],
-  "main": "index.js",
+  "main": "src/bassoon.mjs",
   "scripts": {
     "build": "webpack --env minimize && webpack --env worker"
   },
