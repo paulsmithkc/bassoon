@@ -5,5 +5,7 @@
     "bfnrtv",
     "oboejs",
     "wasm"
-  ]
+  ],
+  "prettier.printWidth": 120,
+  "prettier.singleQuote": true
 }

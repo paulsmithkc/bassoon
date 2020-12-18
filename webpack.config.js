@@ -51,9 +51,8 @@ module.exports = (env) => {
       minimizer: [
         new TerserPlugin({
           terserOptions: {
-            format: {
-              comments: /@version/i,
-            },
+            format: { comments: /@version/i },
+            mangle: { module: true },
           },
           extractComments: false,
         }),
