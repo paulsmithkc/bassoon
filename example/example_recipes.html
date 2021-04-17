@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Example</title>
+  </head>
+  <body>
+    <h1>See Console</h1>
+
+    <script src="/dist/bassoon.min.js"></script>
+    <script>
+      window.onload = function () {
+        bassoon('recipes.json')
+          .on('data', (data) => console.log('data', JSON.stringify(data)))
+          .on('end', (evt) => console.log('done', evt))
+          .on('error', (err) => console.error('error', err));
+      };
+    </script>
+  </body>
+</html>
