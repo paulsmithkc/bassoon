@@ -30,6 +30,7 @@ export default function bassoon(arg1) {
   const url = args.url;
   const method = args.method || 'GET';
   const withCredentials = args.withCredentials || false;
+  const verbose = args.verbose || false;
   const chunkSize = args.chunkSize;
 
   // request state
@@ -68,7 +69,7 @@ export default function bassoon(arg1) {
 
   function parse({ key, data, depth }) {
     if (aborted) return;
-    //console.log(' '.repeat(depth * 2), key, data);
+    if (verbose) console.log(' '.repeat(depth * 2), key, data);
     if (curObj) {
       // processing object/array
       switch (key) {
