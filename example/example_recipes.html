@@ -10,10 +10,17 @@
 
     <script src="/dist/bassoon.min.js"></script>
     <script>
+      let count = 0;
       window.onload = function () {
-        bassoon('recipes.json')
-          .on('data', (data) => console.log('data', JSON.stringify(data)))
-          .on('end', (evt) => console.log('done', evt))
+        bassoon({ url: 'recipes.json', verbose: true })
+          .on('data', (data) => {
+            console.log('data', JSON.stringify(data));
+            ++count;
+          })
+          .on('end', (evt) => {
+            console.log('done', evt);
+            console.log('count', count);
+          })
           .on('error', (err) => console.error('error', err));
       };
     </script>
