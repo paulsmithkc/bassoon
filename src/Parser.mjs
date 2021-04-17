@@ -15,7 +15,7 @@ export default function Parser(callback) {
 
   // patterns
   // const whitespacePattern = /^[ \t\n\r]+/;
-  const keyPattern = /(("(?<value1>[^\"]+)")|(?<value2>\w+))[ \t\n\r]*:[ \t\n\r]*/y;
+  const keyPattern = /(("(?<value1>[^\\"]+)")|(?<value2>\w+))[ \t\n\r]*:[ \t\n\r]*/y;
   const stringPattern = /"(?<value>(?:[^\\"]|(?:\\["\\/bfnrtv])|(?:\\u[0-9a-fA-F]{4}))*)"[ \t\n\r,}\]]/y;
   const numberPattern = /(?<value>[-+]?\d+(.\d+)?([eE][-+]?\d+)?)[ \t\n\r,}\]]/y;
   const truePattern = /(?<value>true)[ \t\n\r,}\]]/iy;
