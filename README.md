@@ -1,5 +1,5 @@
 # Bassoon.js
-A simplified and optimized fork of [oboejs.](http://oboejs.com/) This package will allow you to easily stream an array of JSON objects to your front-end.
+A simplified and optimized fork of [oboejs.](http://oboejs.com/) This package will allow you to easily and efficiently stream an array of JSON objects to your front-end.
 
 ## Install w/ Express
 First install the npm package.
