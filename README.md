@@ -64,9 +64,10 @@ bassoon({ url: '/api/example/list', worker: true })
 
 ## Related
 - [Why Oboe.js?](http://oboejs.com/why)
-- [oboe](https://www.npmjs.com/package/oboe)
-- [clarinet](https://www.npmjs.com/package/clarinet)
-- [sax](https://www.npmjs.com/package/sax)
-- [SAX Parsers](https://docs.oracle.com/javase/tutorial/jaxp/sax/parsing.html)
-- [Node.js Streams](https://nodejs.dev/learn/nodejs-streams)
-- [XHR API](https://hpbn.co/xmlhttprequest/)
+- [Node.js Streams (for server-side streaming)](https://nodejs.dev/learn/nodejs-streams)
+- [Streaming Data with XHR API](https://hpbn.co/xmlhttprequest/#streaming-data-with-xhr)
+- [Oracle Docs: Parsing an XML file using SAX](https://docs.oracle.com/javase/tutorial/jaxp/sax/parsing.html)
+- [npm oboe](https://www.npmjs.com/package/oboe)
+- [npm clarinet](https://www.npmjs.com/package/clarinet)
+- [npm sax](https://www.npmjs.com/package/sax)
+
