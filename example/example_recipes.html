@@ -12,7 +12,7 @@
     <script>
       let count = 0;
       window.onload = function () {
-        bassoon({ url: 'recipes.json', verbose: true })
+        bassoon({ url: 'recipes.json', verbose: true, worker: true, workerPath: '/dist/bassoon.worker.js' })
           .on('data', (data) => {
             console.log('data', JSON.stringify(data));
             ++count;

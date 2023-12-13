@@ -1,5 +1,6 @@
 import Emitter from './Emitter.mjs';
 import Parser from './Parser.mjs';
+import BassoonWorker from 'worker-loader!./bassoon.worker.js';
 
 export default function bassoon(arg1) {
   'use strict';
@@ -13,8 +14,9 @@ export default function bassoon(arg1) {
     // fix the URL so that it is relative to the current page
     args.url = new URL(args.url, location).toString();
     // start the worker
-    const workerPath = args.workerPath || '/bassoon/bassoon-worker.min.js';
+    const workerPath = args.workerPath || '/bassoon/bassoon.worker.js';
     const workerObj = new Worker(workerPath);
+    //const workerObj = new BassoonWorker();
     workerObj.onmessage = function (evt) {
       if (!aborted) emitter.emit(evt.data.cmd, evt.data.data);
     };

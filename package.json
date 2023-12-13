@@ -1,6 +1,6 @@
 {
   "name": "bassoon",
-  "version": "1.0.7",
+  "version": "1.1.0",
   "description": "a simplified and optimized fork of oboejs",
   "keywords": [
     "front-end",
@@ -22,7 +22,7 @@
   ],
   "main": "src/bassoon.mjs",
   "scripts": {
-    "build": "webpack --env minimize && webpack --env worker"
+    "build": "webpack --env minimize"
   },
   "author": "Paul Smith",
   "license": "MIT",
@@ -39,6 +39,7 @@
     "babel-plugin-minify-mangle-names": "^0.5.0",
     "babel-plugin-minify-simplify": "^0.5.1",
     "webpack": "^5.10.0",
-    "webpack-cli": "^4.2.0"
+    "webpack-cli": "^4.2.0",
+    "worker-loader": "^3.0.8"
   }
 }

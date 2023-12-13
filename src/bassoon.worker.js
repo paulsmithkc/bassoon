@@ -1,4 +1,5 @@
-importScripts('bassoon.min.js');
+//importScripts('bassoon.min.js');
+import bassoon from './bassoon.mjs';
 
 self.onmessage = (evt) => {
   const cmd = evt.data.cmd;
