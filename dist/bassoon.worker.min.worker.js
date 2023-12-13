@@ -1,2 +1,0 @@
-/*! @version bassoon 1.1.0 */(()=>{"use strict";var r={477:(r,e,t)=>{}},e={};function t(o){if(e[o])return e[o].exports;var p=e[o]={exports:{}};return r[o](p,p.exports,t),p.exports}t.d=(r,e)=>{for(var o in e)t.o(e,o)&&!t.o(r,o)&&Object.defineProperty(r,o,{enumerable:!0,get:e[o]})},t.o=(r,e)=>Object.prototype.hasOwnProperty.call(r,e),t.p="",t(477)})();
-//# sourceMappingURL=bassoon.worker.min.worker.js.map
